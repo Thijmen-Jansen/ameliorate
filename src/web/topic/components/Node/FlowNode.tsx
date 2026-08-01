@@ -153,6 +153,7 @@ export const FlowNode = (flowNode: FlowNodeProps) => {
         <StyledEditableNode
           node={node}
           className={`spotlight-${spotlight}`}
+          dataTour={`node-${node.id}`}
           onClick={() => {
             if (getFlashlightMode()) showNodeAndNeighbors(node.id, true);
           }}

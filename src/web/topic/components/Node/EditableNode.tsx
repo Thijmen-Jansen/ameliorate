@@ -72,9 +72,10 @@ interface Props {
   node: Node;
   className?: string;
   onClick?: (event: MouseEvent<HTMLDivElement>) => void;
+  dataTour?: string;
 }
 
-const EditableNodeBase = ({ node, className = "", onClick }: Props) => {
+const EditableNodeBase = ({ node, className = "", onClick, dataTour }: Props) => {
   const [nodeRef, setNodeRef] = useState<HTMLDivElement | null>(null); // useState so that setting ref triggers re-render for floating ui https://floating-ui.com/docs/useFloating#elements
 
   const { sessionUser } = useSessionUser();
@@ -142,6 +143,7 @@ const EditableNodeBase = ({ node, className = "", onClick }: Props) => {
         // also, this ensures e.g. EditableNode doesn't try re-using ContextIndicator from one component to another, since that has hooks that are based on node type, and therefore would otherwise change creating a hook order-changed error
         key={node.id}
         ref={setNodeRef}
+        data-tour={dataTour}
         // TODO?: not sure why summary nodes sometimes animate from height that's slightly off
         // TODO(bug): #855 duplicate `layoutId`s can happen in the Summary view, causing one of the nodes to be invisible
         // don't animate in diagram because FlowNode already animates for diagram (with Handles)

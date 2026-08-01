@@ -15,6 +15,7 @@ import { Diagram } from "@/web/topic/components/Diagram/Diagram";
 import { TopicPane } from "@/web/topic/components/TopicPane/TopicPane";
 import { drawerMinWidthRem } from "@/web/topic/components/TopicPane/TopicPane.styles";
 import { AppHeader } from "@/web/topic/components/TopicWorkspace/AppHeader";
+import { DriverTourPOCButton } from "@/web/topic/components/TopicWorkspace/DriverTourPOC";
 import { MainToolbar } from "@/web/topic/components/TopicWorkspace/MainToolbar";
 import { TourSetter } from "@/web/topic/components/TopicWorkspace/TourSetter";
 import { TutorialAnchor } from "@/web/topic/components/TopicWorkspace/TutorialAnchor";
@@ -200,6 +201,7 @@ export const TopicWorkspace = () => {
       <TourSetter />
       <TutorialAnchor />
       <TutorialController />
+      <DriverTourPOCButton />
     </div>
   );
 };
