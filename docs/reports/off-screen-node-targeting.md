@@ -5,6 +5,14 @@ each library, using only its own built-in features, highlight a node that's curr
 the visible viewport by bringing it into view itself? UserTour is excluded (not being pursued
 further).
 
+> **Correction (post-implementation):** the react-joyride findings below were written against
+> `docs`/types read at the time, and turned out to be outdated for the version actually installed in
+> this repo (3.2.0, per `package.json`) — that version has a native async pre-show hook after all. The
+> table and conclusion have been corrected in place; see the implementation POCs
+> (`OffscreenDriverTourPOC.tsx`/`OffscreenJoyrideTourPOC.tsx`/`OffscreenShepherdTourPOC.tsx`) and
+> [`off-screen-node-tour-poc-comparison.md`](./off-screen-node-tour-poc-comparison.md) for what was
+> actually verified working for all three libraries.
+
 ## Why this is hard for any of them
 
 React Flow pans its canvas via a CSS `transform` on `.react-flow__viewport`, not native
@@ -16,16 +24,19 @@ own docs/types, not verified against an actually-off-screen node.
 
 ## Per-library findings
 
-| Library | Built-in reveal mechanism | Verdict for a React Flow canvas |
-|---|---|---|
-| **driver.js** | Default scroll-to-step behavior | Assumes a scrollable ancestor — won't move a transform-based canvas. No override hook documented. |
-| **react-joyride** | `scrollTo`/`scrollOffset`, plus a `MutationObserver` wait for late-mounted targets | Same scrollable-ancestor assumption. The `MutationObserver` only solves the target not existing *yet* in the DOM — it doesn't help when the target exists but is panned off-screen. |
-| **Shepherd.js** | `scrollTo`/`scrollToHandler` | Same default assumption, **but** `scrollToHandler` is a documented override point for substituting custom reveal logic in place of the default scroll call — the only one of the three with a purpose-built extension point for this. |
+| Library           | Built-in reveal mechanism                                                                   | Verdict for a React Flow canvas                                                                                                                                                                                                                                                                                                                                                                             |
+| ----------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **driver.js**     | Default scroll-to-step behavior (`element.scrollIntoView(...)`)                             | Assumes a scrollable ancestor — won't move a transform-based canvas. No async pre-show hook exists, but `popover.onNextClick` fully replaces the default "advance to next step" action (confirmed by reading the bundled source), so a custom reveal can be gated by calling `driver.moveNext()` manually only once it finishes — a workaround, not a purpose-built hook.                                   |
+| **react-joyride** | `skipScroll`-gated scroll-to-step, plus a `targetWaitTimeout` wait for late-mounted targets | Same scrollable-ancestor assumption for its own reveal (disable via `skipScroll: true`), **but** the installed version (3.2.0) ships a step-level `before?: (data) => Promise<void>` hook that the tour explicitly awaits before showing the step — a direct, first-class equivalent of Shepherd's `beforeShowPromise`. (Not present in the version originally checked when this report was first written.) |
+| **Shepherd.js**   | `scrollTo`/`scrollToHandler`                                                                | Same default assumption, **but** `beforeShowPromise` is a documented step option built for exactly this: a function returning a `Promise` that Shepherd awaits before showing/positioning the step.                                                                                                                                                                                                         |
 
 ## Conclusion
 
 None of the three can bring an off-screen node into view out of the box — all were designed around
-standard page scrolling, not a transform-driven canvas. Shepherd.js is the best-positioned of the
-three, since `scrollToHandler` gives a named, documented place to plug in different reveal logic.
-driver.js and react-joyride have no equivalent hook; the same result there would require intercepting
-a step-lifecycle callback (e.g. `beforeStep`/`onNext`) instead of a mechanism designed for this.
+standard page scrolling, not a transform-driven canvas. But two of the three ship a native async
+pre-show hook that sidesteps the problem entirely: Shepherd's `beforeShowPromise` and react-joyride's
+`before` (in the installed 3.2.0). driver.js has no equivalent hook — achieving the same result there
+requires intercepting a step-lifecycle callback (`popover.onNextClick`) and manually deferring the
+advance, rather than using a mechanism designed for this. All three approaches were implemented and
+verified working; see
+[`off-screen-node-tour-poc-comparison.md`](./off-screen-node-tour-poc-comparison.md).

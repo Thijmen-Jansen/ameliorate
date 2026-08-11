@@ -23,6 +23,9 @@ import { setViewportIsChanging } from "@/web/topic/components/Diagram/viewportCh
 import { FlowDirectEdge } from "@/web/topic/components/Edge/FlowDirectEdge";
 import { FlowIndirectEdge } from "@/web/topic/components/Edge/FlowIndirectEdge";
 import { FlowNode } from "@/web/topic/components/Node/FlowNode";
+import { OffscreenDriverTourPOCButton } from "@/web/topic/components/TopicWorkspace/OffscreenDriverTourPOC";
+import { OffscreenJoyrideTourPOCButton } from "@/web/topic/components/TopicWorkspace/OffscreenJoyrideTourPOC";
+import { OffscreenShepherdTourPOCButton } from "@/web/topic/components/TopicWorkspace/OffscreenShepherdTourPOC";
 import { connectNodes, reconnectEdge } from "@/web/topic/diagramStore/createDeleteActions";
 import { useFilteredDiagram } from "@/web/topic/diagramStore/filteredDiagramStore";
 import { useLayoutedDiagram } from "@/web/topic/hooks/diagramHooks";
@@ -325,6 +328,10 @@ const DiagramWithoutProvider = () => {
       >
         <Background variant={BackgroundVariant.Dots} />
       </StyledReactFlow>
+
+      <OffscreenShepherdTourPOCButton />
+      <OffscreenDriverTourPOCButton />
+      <OffscreenJoyrideTourPOCButton />
     </>
   );
 };
